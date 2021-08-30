@@ -3,7 +3,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import pandas as pd
-import folium
+import plotly.express as px
+import dash_table
 
 
 app = dash.Dash()
@@ -13,27 +14,40 @@ df = pd.read_csv("data/NMEA_SUMMARY_V4.csv")
 dfcolumns = list(df)
 
 
-m = folium.Map()
-m.fit_bounds(
-    [
-        [df.latitude.min(), df.longitude.min()],
-        [df.latitude.max(), df.longitude.max()],
-    ]
+fig = px.line_mapbox(
+    df,
+    lat="latitude",
+    lon="longitude",
+    hover_name="altitude",
+    hover_data=["altitude", "abs_time_ms"],
+    zoom=12,
+    height=800,
 )
+fig.update_layout(mapbox_style="stamen-terrain")  # "open-street-map")
+fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
-points = zip(df.latitude, df.longitude)
-folium.PolyLine(points).add_to(m)
-iframe = m._repr_html_()
 
 app.layout = html.Div(
     [
-        html.Iframe(
-            srcDoc=iframe,
-            style={
-                "width": "1200px",
-                "height": "800px",
-                "border": "none",
-            },
+        html.Div(
+            [
+                html.Div(
+                    dcc.Graph(id="mymap", figure=fig),
+                    style={"width": "99%"},
+                ),
+                # html.Div(
+                #    dash_table.DataTable(
+                #        id="table",
+                #        columns=[{"name": i, "id": i} for i in df.columns],
+                #        data=df.to_dict("records"),
+                #        fixed_rows={"headers": True},
+                #        page_action="none",
+                #        style_cell={"minWidth": 95, "maxWidth": 95, "width": 95},
+                #        virtualization=True,
+                #    ),
+                #    style={"width": "49%"},
+                # ),
+            ]
         ),
         html.Div(
             [
