@@ -5,7 +5,7 @@ import plotly.graph_objs as go
 import pandas as pd
 
 app = dash.Dash()
-
+server = app.server
 df = pd.read_csv(
     'https://gist.githubusercontent.com/chriddyp/'
     'cb5392c35661370d95f300086accea51/raw/'
